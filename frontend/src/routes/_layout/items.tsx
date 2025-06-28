@@ -102,8 +102,9 @@ function ItemsTable() {
               </Table.Cell>
               <Table.Cell
                 color={!item.description ? "gray" : "inherit"}
-                truncate
-                maxW="30%"
+                maxW="5xl"
+                w="100%"
+                ellipsis
               >
                 {item.description || "N/A"}
               </Table.Cell>
