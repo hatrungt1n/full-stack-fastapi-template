@@ -26,6 +26,8 @@ import {
   DialogTrigger,
 } from "../ui/dialog"
 import { Field } from "../ui/field"
+import { MediaUpload } from "../ui/media-upload"
+import { useMediaUpload } from "@/hooks/useMediaUpload"
 
 const AddItem = () => {
   const [isOpen, setIsOpen] = useState(false)
@@ -45,12 +47,24 @@ const AddItem = () => {
     },
   })
 
+  const { uploadMedia, isUploading } = useMediaUpload()
+  const [mediaUrl, setMediaUrl] = useState<string | null>(null)
+  const [mediaType, setMediaType] = useState<string | null>(null)
+
+  const handleMediaUpload = async (file: File) => {
+    const result = await uploadMedia(file)
+    setMediaUrl(result.url)
+    setMediaType(result.resource_type)
+  }
+
   const mutation = useMutation({
-    mutationFn: (data: ItemCreate) =>
+    mutationFn: (data: ItemCreate & { image_url?: string; video_url?: string; media_type?: string }) =>
       ItemsService.createItem({ requestBody: data }),
     onSuccess: () => {
       showSuccessToast("Item created successfully.")
       reset()
+      setMediaUrl(null)
+      setMediaType(null)
       setIsOpen(false)
     },
     onError: (err: ApiError) => {
@@ -62,7 +76,12 @@ const AddItem = () => {
   })
 
   const onSubmit: SubmitHandler<ItemCreate> = (data) => {
-    mutation.mutate(data)
+    mutation.mutate({
+      ...data,
+      image_url: mediaType === "image" ? mediaUrl ?? undefined : undefined,
+      video_url: mediaType === "video" ? mediaUrl ?? undefined : undefined,
+      media_type: mediaType ?? undefined,
+    })
   }
 
   return (
@@ -114,6 +133,14 @@ const AddItem = () => {
                   type="text"
                 />
               </Field>
+
+              {/* Media Upload Field */}
+              <MediaUpload
+                onUpload={handleMediaUpload}
+                currentUrl={mediaUrl}
+                mediaType={mediaType as "image" | "video" | null}
+                isLoading={isUploading}
+              />
             </VStack>
           </DialogBody>
 
@@ -131,7 +158,7 @@ const AddItem = () => {
               variant="solid"
               type="submit"
               disabled={!isValid}
-              loading={isSubmitting}
+              loading={isSubmitting || isUploading}
             >
               Save
             </Button>

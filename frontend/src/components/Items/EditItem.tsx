@@ -25,6 +25,8 @@ import {
   DialogTrigger,
 } from "../ui/dialog"
 import { Field } from "../ui/field"
+import { MediaUpload } from "../ui/media-upload"
+import { useMediaUpload } from "@/hooks/useMediaUpload"
 
 interface EditItemProps {
   item: ItemPublic
@@ -53,9 +55,20 @@ const EditItem = ({ item }: EditItemProps) => {
     },
   })
 
+  const [mediaUrl, setMediaUrl] = useState<string | null>(item.image_url || null)
+  const [mediaType, setMediaType] = useState<string | null>(item.media_type || null)
+  const { uploadMedia, isUploading } = useMediaUpload()
+
   const mutation = useMutation({
     mutationFn: (data: ItemUpdateForm) =>
-      ItemsService.updateItem({ id: item.id, requestBody: data }),
+      ItemsService.updateItem({
+        id: item.id,
+        requestBody: {
+          ...data,
+          image_url: mediaType === "image" ? mediaUrl ?? null : null,
+          media_type: mediaType ?? null,
+        },
+      }),
     onSuccess: () => {
       showSuccessToast("Item updated successfully.")
       reset()
@@ -71,6 +84,17 @@ const EditItem = ({ item }: EditItemProps) => {
 
   const onSubmit: SubmitHandler<ItemUpdateForm> = async (data) => {
     mutation.mutate(data)
+  }
+
+  const handleMediaUpload = async (file: File) => {
+    const result = await uploadMedia(file)
+    setMediaUrl(result.url)
+    setMediaType(result.resource_type)
+  }
+
+  const handleMediaRemove = () => {
+    setMediaUrl(null)
+    setMediaType(null)
   }
 
   return (
@@ -120,6 +144,17 @@ const EditItem = ({ item }: EditItemProps) => {
                   {...register("description")}
                   placeholder="Description"
                   type="text"
+                />
+              </Field>
+
+              <Field label="Image">
+                <MediaUpload
+                  onUpload={handleMediaUpload}
+                  onRemove={handleMediaRemove}
+                  currentUrl={mediaUrl}
+                  mediaType={mediaType as "image" | "video" | null}
+                  isLoading={isUploading}
+                  accept="image/*"
                 />
               </Field>
             </VStack>

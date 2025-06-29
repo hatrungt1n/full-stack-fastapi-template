@@ -40,7 +40,7 @@ class Settings(BaseSettings):
 
     BACKEND_CORS_ORIGINS: Annotated[
         list[AnyUrl] | str, BeforeValidator(parse_cors)
-    ] = []
+    ] = ["http://localhost:3000", "http://localhost:8080"]
 
     @computed_field  # type: ignore[prop-decorator]
     @property
@@ -94,6 +94,12 @@ class Settings(BaseSettings):
     EMAIL_TEST_USER: EmailStr = "test@example.com"
     FIRST_SUPERUSER: EmailStr
     FIRST_SUPERUSER_PASSWORD: str
+
+    # Cloudinary settings
+    CLOUDINARY_CLOUD_NAME: str | None = None
+    CLOUDINARY_API_KEY: str | None = None
+    CLOUDINARY_API_SECRET: str | None = None
+    CLOUDINARY_UPLOAD_PRESET: str = "ml_default"  # Default upload preset
 
     def _check_default_secret(self, var_name: str, value: str | None) -> None:
         if value == "changethis":

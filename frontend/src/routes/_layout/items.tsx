@@ -86,6 +86,7 @@ function ItemsTable() {
         <Table.Header>
           <Table.Row>
             <Table.ColumnHeader w="sm">ID</Table.ColumnHeader>
+            <Table.ColumnHeader w="sm">Image</Table.ColumnHeader>
             <Table.ColumnHeader w="sm">Title</Table.ColumnHeader>
             <Table.ColumnHeader w="sm">Description</Table.ColumnHeader>
             <Table.ColumnHeader w="sm">Actions</Table.ColumnHeader>
@@ -97,6 +98,17 @@ function ItemsTable() {
               <Table.Cell truncate maxW="sm">
                 {item.id}
               </Table.Cell>
+              <Table.Cell maxW="sm" w="100%">
+                {item.image_url ? (
+                  <img
+                    src={item.image_url}
+                    alt={item.title}
+                    style={{ width: 96, height: 96, objectFit: 'cover', borderRadius: 6 }}
+                  />
+                ) : (
+                  <span style={{ color: '#aaa' }}>No image</span>
+                )}
+              </Table.Cell>
               <Table.Cell truncate maxW="sm">
                 {item.title}
               </Table.Cell>
@@ -104,7 +116,6 @@ function ItemsTable() {
                 color={!item.description ? "gray" : "inherit"}
                 maxW="5xl"
                 w="100%"
-                ellipsis
               >
                 {item.description || "N/A"}
               </Table.Cell>
