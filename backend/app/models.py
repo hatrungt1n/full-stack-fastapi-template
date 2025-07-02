@@ -60,6 +60,9 @@ class UsersPublic(SQLModel):
 class ItemBase(SQLModel):
     title: str = Field(min_length=1, max_length=255)
     description: str | None = Field(default=None, max_length=255)
+    image_url: str | None = Field(default=None, max_length=500)
+    video_url: str | None = Field(default=None, max_length=500)
+    media_type: str | None = Field(default=None, max_length=50)  # "image", "video", or None
 
 
 # Properties to receive on item creation
